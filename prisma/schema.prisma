@@ -1,0 +1,29 @@
+// Bu dosya veritabanımızın planıdır.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Ziyaret Edilen Yerler Tablosu (Model)
+model Visit {
+  id        String   @id @default(uuid()) // Rastgele benzersiz ID (örn: 123e4567-e89b...)
+  
+  cityName  String   // Şehir Adı (Adana, Ankara...)
+  country   String   @default("Turkey") // Şimdilik sadece Türkiye
+  
+  isVisited Boolean  @default(true) // Gezildi mi?
+  visitDate DateTime? // Gezi tarihi (Opsiyonel olabilir)
+  note      String?   // Kullanıcı notu (Opsiyonel - uzun yazı olabilir)
+  rating    Int?      // 1-5 arası puan (Gelecek özellik için hazırlık)
+
+  createdAt DateTime @default(now()) // Kayıt oluşturulma tarihi
+  updatedAt DateTime @updatedAt      // Son güncelleme tarihi
+
+  // İleride buraya "userId" ekleyip User tablosuna bağlayacağız.
+  // Şimdilik Auth olmadan önce tabloyu test etmek için User'sız yapıyoruz.
+}

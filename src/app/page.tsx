@@ -1,23 +1,26 @@
 import TurkeyMap from "@/components/TurkeyMap";
+import { db } from "../lib/db"; // Yolu düzelttik
 
-export default function Home() {
+export default async function Home() {
+  // Veritabanından her şeyi çekiyoruz
+  const visits = await db.visit.findMany({
+    where: { isVisited: true } // Sadece gezilenleri alalım
+  });
+
+  // visits dizisi içinde tarih (Date) objeleri var.
+  // Next.js, Client Component'e (TurkeyMap) "Date" objesi gönderemez, hata verir.
+  // O yüzden tarihleri string'e çevirmemiz lazım.
+  const serializedVisits = visits.map(v => ({
+    ...v,
+    visitDate: v.visitDate ? v.visitDate.toISOString().split('T')[0] : "", // "2026-05-20" formatı
+    createdAt: v.createdAt.toISOString(),
+    updatedAt: v.updatedAt.toISOString(),
+  }));
+
   return (
-    <div className="flex flex-col items-center justify-between gap-8">
-      {/* Üst Karşılama Alanı */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
-          Hoşgeldin, Gezgin! 🌍
-        </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          MapivA ile gezdiğin şehirleri işaretle, anılarını ölümsüzleştir. 
-          Aşağıdaki haritadan bir şehir seçerek başla.
-        </p>
-      </div>
-
-      {/* Harita Bileşeni */}
-      <div className="w-full max-w-6xl">
-        <TurkeyMap />
-      </div>
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-between p-8 bg-white">
+      {/* Tüm veriyi gönderiyoruz */}
+      <TurkeyMap visits={serializedVisits} />
+    </main>
   );
 }
