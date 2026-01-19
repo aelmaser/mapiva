@@ -39,6 +39,6 @@ export async function saveVisit(cityName: string, data: { isVisited: boolean; vi
 
   } catch (error) {
     console.error("Kayıt hatası:", error);
-    return { success: false, error: "Kaydedilemedi" };
+    return { success: false, error: "Kaydedilemedi!" };
   }
 }
