@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 // Google Fonts'tan Inter fontunu çekiyoruz. Profesyonel görünür.
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 
 // Bileşenlerimizi import ediyoruz
 import Navbar from "@/components/Navbar";
@@ -22,6 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ClerkProvider>
     <html lang="tr" className="h-full">
       <body className={`${inter.className} flex flex-col min-h-screen bg-gray-50`}>
         {/* Navbar her sayfada en üstte olacak */}
@@ -36,5 +38,6 @@ export default function RootLayout({
         <Footer />
       </body>
     </html>
+    </ClerkProvider>
   );
 }

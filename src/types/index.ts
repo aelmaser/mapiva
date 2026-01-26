@@ -7,5 +7,5 @@ export interface City {
   plateCode: number; // Plaka kodu sayısal olmalı
   isVisited: boolean; // Gezildi mi?
   visitedDate?: string; // Soru işareti (?) bu alanın "opsiyonel" olduğunu belirtir.
-  note?: string; // Her gezilen yere not yazmayabiliriz.
+  notes?: string; // Her gezilen yere not yazmayabiliriz.
 }

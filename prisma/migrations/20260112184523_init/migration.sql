@@ -5,7 +5,7 @@ CREATE TABLE "Visit" (
     "country" TEXT NOT NULL DEFAULT 'Turkey',
     "isVisited" BOOLEAN NOT NULL DEFAULT true,
     "visitDate" TIMESTAMP(3),
-    "note" TEXT,
+    "notes" TEXT,
     "rating" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

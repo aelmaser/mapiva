@@ -1,44 +1,48 @@
 "use server";
 
-import { db } from "../lib/db"; // İçe aktarma yolunu düzelttik
+import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 
-export async function saveVisit(cityName: string, data: { isVisited: boolean; visitDate: string; note: string }) {
-  try {
-    // 1. Önce bu şehir veritabanında var mı diye bakıyoruz
-    const existing = await db.visit.findFirst({
-      where: { cityName: cityName }
+export async function saveVisit(formData: FormData) {
+  const { userId } = await auth();
+
+  if (!userId) throw new Error("Giriş yapmalısınız!");
+
+  const cityName = formData.get("cityName") as string;
+  const notes = formData.get("notes") as string;
+  const isVisited = formData.get("isVisited") !== null;
+  
+  // 1. Yeni verileri al
+  const dateStr = formData.get("visitDate") as string; // "2024-05-20" gelir
+  const ratingStr = formData.get("rating") as string;  // "5" gelir
+
+  // 2. Formatla
+  const visitDate = dateStr ? new Date(dateStr) : null;
+  const rating = ratingStr ? parseInt(ratingStr) : null;
+
+  const existingVisit = await db.visit.findFirst({
+    where: { cityName, userId },
+  });
+
+  const data = {
+    cityName,
+    isVisited,
+    notes,
+    visitDate, // Tarihi ekle
+    rating,    // Puanı ekle
+    userId,
+    country: "Turkey"
+  };
+
+  if (existingVisit) {
+    await db.visit.update({
+      where: { id: existingVisit.id },
+      data: { isVisited, notes, visitDate, rating }, // Güncellerken de ekle
     });
-
-    if (existing) {
-      // VARSA: Güncelle (Update)
-      await db.visit.update({
-        where: { id: existing.id }, // Bulduğumuz kaydın ID'si üzerinden güncelliyoruz
-        data: {
-          isVisited: data.isVisited,
-          visitDate: data.visitDate ? new Date(data.visitDate) : null, // Tarih varsa çevir, yoksa null
-          note: data.note,
-        },
-      });
-    } else {
-      // YOKSA: Yeni Oluştur (Create)
-      await db.visit.create({
-        data: {
-          cityName: cityName, // Zorunlu alan burasıydı, artık dolu.
-          isVisited: data.isVisited,
-          visitDate: data.visitDate ? new Date(data.visitDate) : null,
-          note: data.note,
-        },
-      });
-    }
-
-    // 2. Haritayı güncellemek için önbelleği temizle
-    revalidatePath("/");
-    
-    return { success: true };
-
-  } catch (error) {
-    console.error("Kayıt hatası:", error);
-    return { success: false, error: "Kaydedilemedi!" };
+  } else {
+    await db.visit.create({ data });
   }
+
+  revalidatePath("/");
 }

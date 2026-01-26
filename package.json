@@ -10,6 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.36.10",
     "@prisma/client": "^5.17.0",
     "d3-scale": "^4.0.2",
     "dotenv": "^17.2.3",

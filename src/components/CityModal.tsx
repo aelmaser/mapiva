@@ -13,36 +13,45 @@ interface CityModalProps {
 export interface VisitData {
   isVisited: boolean;
   visitDate: string;
-  note: string;
+  notes: string;
 }
 
-export default function CityModal({ isOpen, cityName, initialData, onClose, onSave }: CityModalProps) {
+export default function CityModal({
+  isOpen,
+  cityName,
+  initialData,
+  onClose,
+  onSave,
+}: CityModalProps) {
   // useEffect SİLİNDİ. Artık state'ler otomatik sıfır başlayacak.
   const [isVisited, setIsVisited] = useState(initialData?.isVisited || false);
   const [visitDate, setVisitDate] = useState(initialData?.visitDate || "");
-  const [note, setNote] = useState(initialData?.note || "");
+  const [notes, setNote] = useState(initialData?.notes || "");
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
-        
         {/* Başlık */}
         <div className="bg-blue-600 px-6 py-4 flex justify-between items-center">
           <h3 className="text-xl font-bold text-white tracking-wide">
             {cityName}
           </h3>
-          <button onClick={onClose} className="text-white/80 hover:text-white text-2xl font-bold">
+          <button
+            onClick={onClose}
+            className="text-white/80 hover:text-white text-2xl font-bold"
+          >
             &times;
           </button>
         </div>
 
         {/* Form İçeriği */}
         <div className="p-6 space-y-6">
-          
-          <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100 cursor-pointer" onClick={() => setIsVisited(!isVisited)}>
+          <div
+            className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100 cursor-pointer"
+            onClick={() => setIsVisited(!isVisited)}
+          >
             <input
               type="checkbox"
               checked={isVisited}
@@ -73,7 +82,7 @@ export default function CityModal({ isOpen, cityName, initialData, onClose, onSa
                   Seyahat Notların
                 </label>
                 <textarea
-                  value={note}
+                  value={notes}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Yediğim yemekler, gördüğüm yerler..."
                   rows={4}
@@ -93,7 +102,7 @@ export default function CityModal({ isOpen, cityName, initialData, onClose, onSa
           </button>
           <button
             onClick={() => {
-              onSave({ isVisited, visitDate, note });
+              onSave({ isVisited, visitDate, notes });
               onClose();
             }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"

@@ -18,12 +18,11 @@ model Visit {
   
   isVisited Boolean  @default(true) // Gezildi mi?
   visitDate DateTime? // Gezi tarihi (Opsiyonel olabilir)
-  note      String?   // Kullanıcı notu (Opsiyonel - uzun yazı olabilir)
+  notes      String?   // Kullanıcı notu (Opsiyonel - uzun yazı olabilir)
   rating    Int?      // 1-5 arası puan (Gelecek özellik için hazırlık)
 
   createdAt DateTime @default(now()) // Kayıt oluşturulma tarihi
   updatedAt DateTime @updatedAt      // Son güncelleme tarihi
 
-  // İleride buraya "userId" ekleyip User tablosuna bağlayacağız.
-  // Şimdilik Auth olmadan önce tabloyu test etmek için User'sız yapıyoruz.
+  userId    String
 }
