@@ -100,12 +100,13 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
 
   return (
     <div className="w-full h-auto relative bg-blue-50 rounded-xl overflow-hidden shadow-2xl border border-blue-100">
-      {/* Harita Başlığı */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-sm z-10">
-        <h2 className="text-gray-700 font-bold text-lg">
+      
+      {/* Harita Başlığı (Mobil Uyumlulaştırıldı) */}
+      <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-white/90 backdrop-blur px-3 py-1.5 md:px-4 md:py-2 rounded-lg shadow-sm z-10 pointer-events-none">
+        <h2 className="text-gray-800 font-bold text-sm md:text-lg leading-tight">
           Türkiye Seyahat Haritam
         </h2>
-        <p className="text-sm text-gray-500">
+        <p className="text-xs md:text-sm text-gray-500 mt-0.5">
           Toplam:{" "}
           <span className="text-green-600 font-bold">
             {visitedCities.length}
@@ -181,6 +182,22 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
 
       {/* Şehir Detay Modalı */}
       {activeCity && (
+        // 1. Dış Katman: Tüm ekranı kaplayan, arka planı karartan sabit div (fixed inset-0)
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    
+    // 2. İç Kutu: Maksimum genişliği olan, mobilde %100 kaplayan, taşarsa kaydırılan div
+    <div className="bg-white rounded-3xl p-5 md:p-8 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      {/* Çarpı (Kapatma) Butonu */}
+      <button 
+        onClick={() => setActiveCity(null)}
+        className="absolute top-4 right-4 text-gray-400 hover:text-red-500 bg-gray-100 hover:bg-red-50 p-2 rounded-full transition-colors"
+      >
+        ✕
+      </button>
+
+      {/* Modal İçeriği (Form, Notlar, Yıldızlar vb. aynı kalacak) */}
+      <h3 className="text-2xl font-bold text-gray-800 mb-4">{activeCity.name}</h3>
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
             {/* Modal Başlık */}
