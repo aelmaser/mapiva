@@ -45,9 +45,15 @@ export default function AboutPage() {
               </li>
             </ul>
           </div>
-          <div className="bg-gray-100 rounded-2xl h-64 md:h-80 flex items-center justify-center">
-            {/* Buraya bir resim koyabilirsin */}
-            <span className="text-gray-400 font-medium">Görsel Alanı 📸</span>
+
+          {/* YENİ EKLENEN GÖRSEL ALANI */}
+          <div className="relative h-64 md:h-80 w-full rounded-2xl overflow-hidden shadow-xl border border-gray-100 transform hover:scale-[1.02] transition-transform duration-500">
+            <img
+              src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800"
+              alt="Seyahat ve Harita"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
           </div>
         </section>
 
