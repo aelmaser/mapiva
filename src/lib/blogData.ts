@@ -6,7 +6,7 @@ export const BLOG_POSTS = [
     excerpt: "Gelibolu Yarımadası'nın tüyleri diken diken eden atmosferi ve Kaz Dağları'nın muazzam oksijeni.",
     date: "25 Şubat 2026",
     readTime: "5 dk",
-    image: "https://images.unsplash.com/photo-1548625361-98711815197b?auto=format&fit=crop&q=80&w=1200",
+    image: "https://etstur.com/letsgo/wp-content/uploads/2018/11/canakkale-truva-ati.jpg?auto=format&fit=crop&q=80&w=1200",
     category: "Gezi Rehberi",
     content: `
       <p>Çanakkale sadece bir şehir değil, bir destanın yazıldığı yerdir. Gezimize sabahın erken saatlerinde Gelibolu Yarımadası Tarihi Milli Parkı'ndan başladık.</p>
