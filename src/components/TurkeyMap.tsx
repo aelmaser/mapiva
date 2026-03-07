@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { saveVisit } from "@/app/actions";
+import { saveVisit, deleteVisit } from "@/app/actions";
 
 const geoUrl = "/turkey-map.json";
 
@@ -71,6 +72,34 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
       alert("Bir hata oluştu!");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const [isDeleting, setIsDeleting] = useState(false); // Silme yükleniyor state'i
+
+  const handleDelete = async () => {
+    if (!activeCity) return;
+
+    // Kullanıcıdan onay isteyelim ki yanlışlıkla silmesin
+    if (
+      !confirm(
+        `${activeCity.name} şehrini haritadan silmek istediğine emin misin?`,
+      )
+    )
+      return;
+
+    setIsDeleting(true);
+    const formData = new FormData();
+    formData.append("cityName", activeCity.name);
+
+    try {
+      await deleteVisit(formData);
+      setActiveCity(null); // Modalı kapat
+    } catch (error) {
+      console.error("Silme hatası:", error);
+      alert("Silinirken bir hata oluştu!");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -244,6 +273,19 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                 </div>
 
                 <div className="flex gap-3 pt-2">
+                  {/* Eğer şehir zaten gezilmişse SİL butonunu göster */}
+                  {isCityVisited(activeCity.name) && (
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="py-2.5 px-4 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                      title="Şehri Haritadan Sil"
+                    >
+                      {isDeleting ? "..." : "🗑️ Sil"}
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => setActiveCity(null)}

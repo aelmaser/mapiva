@@ -46,3 +46,22 @@ export async function saveVisit(formData: FormData) {
 
   revalidatePath("/");
 }
+
+// Şehri haritadan silmek için yeni Server Action
+export async function deleteVisit(formData: FormData) {
+  const { userId } = await auth();
+
+  if (!userId) throw new Error("Giriş yapmalısınız!");
+
+  const cityName = formData.get("cityName") as string;
+
+  // Veritabanından bu kullanıcıya ait olan bu şehri sil
+  await db.visit.deleteMany({
+    where: {
+      cityName: cityName,
+      userId: userId,
+    },
+  });
+
+  revalidatePath("/"); // Sayfayı yenile ki haritadan renk gitsin
+}
