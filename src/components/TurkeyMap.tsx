@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
-import { saveVisit } from "@/app/actions";
 import { saveVisit, deleteVisit } from "@/app/actions";
 
 const geoUrl = "/turkey-map.json";
