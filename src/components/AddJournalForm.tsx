@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { UploadDropzone } from "@/lib/uploadthing"; // Dropzone daha stabil çalışır
+import { UploadDropzone } from "@/lib/uploadthing";
 import { useRouter } from "next/navigation";
 
 export default function AddJournalForm() {
@@ -33,7 +33,7 @@ export default function AddJournalForm() {
       }
     } catch (error) {
       console.error(error);
-      alert("Hata oluştu.");
+      alert("Kayıt sırasında bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -46,98 +46,58 @@ export default function AddJournalForm() {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Başlık
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="Nereyi gezdin?"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
+        <input
+          type="text"
+          required
+          placeholder="Nereyi gezdin?"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Anıların
-          </label>
-          <textarea
-            required
-            rows={4}
-            placeholder="Neler yaşadın?"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
+        <textarea
+          required
+          rows={4}
+          placeholder="Neler yaşadın?"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Fotoğraf
-          </label>
-
+        <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50">
           {imageUrl ? (
-            <div className="relative rounded-xl overflow-hidden border h-48 w-full md:w-1/2">
+            <div className="flex flex-col items-center">
               <img
                 src={imageUrl}
                 alt="Önizleme"
-                className="object-cover w-full h-full"
+                className="h-40 w-full object-cover rounded-lg mb-2"
               />
               <button
                 type="button"
                 onClick={() => setImageUrl(null)}
-                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs"
+                className="text-red-500 text-sm font-medium"
               >
-                Sil ve Yenisini Yükle
+                Fotoğrafı Değiştir
               </button>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50">
-              <UploadDropzone
-                endpoint="imageUploader"
-                onClientUploadComplete={(res) => {
-                  if (res && res[0]) {
-                    setImageUrl(res[0].url);
-                    console.log("Yükleme bitti:", res[0].url);
-                  }
-                }}
-                onUploadError={(error: Error) => {
-                  alert(`Hata: ${error.message}`);
-                }}
-                content={{
-                  // Devasa ikonu burada manuel küçültüyoruz
-                  uploadIcon: (
-                    <svg
-                      className="w-8 h-8 text-blue-500 mb-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                  ),
-                  label: "Fotoğraf Seç veya Sürükle",
-                  allowedContent: "Maksimum 4MB",
-                }}
-                appearance={{
-                  container:
-                    "flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl p-4 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer min-h-[140px]",
-                  label: "text-blue-600 font-semibold text-sm",
-                  allowedContent: "text-gray-400 text-[10px] mt-1",
-                  // Butonu küçük ve şık yapıyoruz ki "Loading" aşamasını görebilelim
-                  button:
-                    "bg-blue-600 text-white text-xs px-4 py-2 rounded-lg mt-3 ut-ready:bg-blue-600 ut-uploading:cursor-not-allowed",
-                }}
-              />
-            </div>
+            <UploadDropzone
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                if (res && res[0]) {
+                  setImageUrl(res[0].url); // İşte "Bitti" sinyalini burada yakalayacağız
+                  console.log("Yükleme Başarılı:", res[0].url);
+                }
+              }}
+              onUploadError={(error: Error) => {
+                alert(`HATA: ${error.message}`);
+              }}
+              appearance={{
+                container: "min-h-[120px] cursor-pointer",
+                label: "text-blue-600 font-bold",
+                button: "bg-blue-600 px-4 py-2 rounded-lg text-sm",
+              }}
+            />
           )}
         </div>
 
