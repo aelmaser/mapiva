@@ -82,7 +82,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
     // Kullanıcıdan onay isteyelim ki yanlışlıkla silmesin
     if (
       !confirm(
-        `${activeCity.name} şehrini haritadan silmek istediğine emin misin?`,
+        `${activeCity.name} şehrini gezdiğin şehirler listenden silmek istediğine emin misin?`,
       )
     )
       return;

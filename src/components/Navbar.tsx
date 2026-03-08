@@ -32,7 +32,7 @@ export default function Navbar() {
               href="/blog"
               className="text-gray-600 hover:text-blue-600 font-medium transition"
             >
-              Blog
+              Seyahat Günlükleri
             </Link>
             <Link
               href="/about"
