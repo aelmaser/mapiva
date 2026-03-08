@@ -12,7 +12,7 @@ export default function AboutPage() {
           </h1>
           <p className="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto">
             Mapiva, gezginlerin anılarını dijital bir haritada ölümsüzleştirmesi
-            için tasarlandı. Hangi şehre gittin, ne yedin, kaç puan verdin?
+            için tasarlandı. Hangi şehre gittin, ne yedin, kaç puan verdin ?
             Hepsi tek bir yerde.
           </p>
         </div>
