@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
+import { db } from "@/lib/db";
 
 // Prisma istemcisini başlatıyoruz
 const prisma = new PrismaClient();
