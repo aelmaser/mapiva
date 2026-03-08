@@ -26,3 +26,13 @@ model Visit {
 
   userId    String
 }
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  excerpt   String
+  imageUrl  String
+  userId    String
+  createdAt DateTime @default(now())
+}
