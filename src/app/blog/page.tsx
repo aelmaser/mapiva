@@ -1,19 +1,17 @@
 import React from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+// DİKKAT: Navbar ve Footer importlarını sildik, çünkü layout.tsx zaten onları ekliyor!
 import AddJournalForm from "@/components/AddJournalForm";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
-// Şimdilik veritabanı yerine eski yazılarını burada statik tutuyoruz.
-// Veritabanını bağladığımızda bu listeyi otomatik olarak Prisma'dan çekeceğiz.
 const staticPosts = [
   {
     id: "1",
     title: "Tarihin İzinde: Çanakkale Turu",
     excerpt:
       "Şehitlikler, Truva Antik Kenti ve o muazzam boğaz manzarası eşliğinde unutulmaz bir tarih yolculuğu yaşadım. Herkesin mutlaka görmesi gereken bir yer.",
+    // Senin verdiğin Çanakkale fotoğrafı:
     imageUrl:
-      "https://images.unsplash.com/photo-1598887142487-3c854d6ec0ff?q=80&w=800&auto=format&fit=crop",
+      "https://etstur.com/letsgo/wp-content/uploads/2018/11/canakkale-truva-ati.jpg",
     author: "Kurucu",
     date: "15 Şubat 2026",
   },
@@ -22,8 +20,8 @@ const staticPosts = [
     title: "Kocaeli: Körfezin İncisi",
     excerpt:
       "Sekapark'ta deniz havası almak, yemyeşil doğasında yürüyüş yapmak harikaydı. Tabii ki meşhur pişmaniyesinden tatmadan dönmedim!",
-    imageUrl:
-      "https://images.unsplash.com/photo-1578912891392-74d75db9576c?q=80&w=800&auto=format&fit=crop",
+    // Senin verdiğin Kocaeli fotoğrafı:
+    imageUrl: "https://etstur.com/letsgo/wp-content/uploads/2024/02/22.jpg",
     author: "Kurucu",
     date: "28 Şubat 2026",
   },
@@ -32,7 +30,7 @@ const staticPosts = [
 export default function BlogPage() {
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
+      {/* Navbar'ı buradan kaldırdık */}
 
       <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 md:py-12">
         <div className="mb-8">
@@ -45,12 +43,12 @@ export default function BlogPage() {
           </p>
         </div>
 
-        {/* --- YENİ YAZI EKLEME FORMU (SADECE GİRİŞ YAPANLARA) --- */}
+        {/* --- YENİ YAZI EKLEME FORMU --- */}
         <SignedIn>
           <AddJournalForm />
         </SignedIn>
 
-        {/* --- GİRİŞ YAPMAYANLARA TEŞVİK ALANI --- */}
+        {/* --- GİRİŞ YAPMAYANLARA TEŞVİK --- */}
         <SignedOut>
           <div className="bg-white border border-blue-100 rounded-2xl p-6 md:p-8 text-center mb-12 shadow-sm flex flex-col items-center justify-center">
             <span className="text-5xl mb-4">🌍</span>
@@ -111,7 +109,7 @@ export default function BlogPage() {
         </div>
       </div>
 
-      <Footer />
+      {/* Footer'ı buradan kaldırdık */}
     </main>
   );
 }
