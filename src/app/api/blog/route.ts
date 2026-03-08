@@ -5,17 +5,17 @@ import { db } from "@/lib/db";
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
-    if (!userId) return new NextResponse("Yetkisiz", { status: 401 });
+    if (!userId) return new NextResponse("Giriş yapmalısınız", { status: 401 });
 
     const body = await req.json();
     const { title, content, imageUrl } = body;
 
-    if (!title || !content || !imageUrl) {
-      return new NextResponse("Eksik alanlar", { status: 400 });
-    }
+    // Konsola ne geldiğini yazdıralım (Vercel Logs'ta görünür)
+    console.log("Gelen Veriler:", { title, content, imageUrl, userId });
 
     const excerpt = content.length > 120 ? content.substring(0, 120) + "..." : content;
 
+    // VERİTABANI KAYDI
     const blogPost = await db.blogPost.create({
       data: {
         title,
@@ -27,8 +27,9 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(blogPost);
-  } catch (error) {
-    console.error("API_BLOG_ERROR:", error);
-    return new NextResponse("Sunucu Hatası", { status: 500 });
+  } catch (error: any) {
+    // HATAYI DETAYLI GÖRELİM
+    console.error("KRİTİK_HATA:", error.message);
+    return new NextResponse(`Veritabanı Hatası: ${error.message}`, { status: 500 });
   }
 }
