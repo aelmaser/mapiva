@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 // Google Fonts'tan Inter fontunu çekiyoruz. Profesyonel görünür.
 import { Inter } from "next/font/google";
+import "@uploadthing/react/styles.css";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 
 // Bileşenlerimizi import ediyoruz
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import "@uploadthing/react/styles.css";
 
 // Font ayarı
 const inter = Inter({ subsets: ["latin"] });
