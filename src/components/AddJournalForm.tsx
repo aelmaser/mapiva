@@ -101,26 +101,40 @@ export default function AddJournalForm() {
                 onClientUploadComplete={(res) => {
                   if (res && res[0]) {
                     setImageUrl(res[0].url);
-                    console.log("Dosya başarıyla yüklendi:", res[0].url);
+                    console.log("Yükleme bitti:", res[0].url);
                   }
                 }}
                 onUploadError={(error: Error) => {
-                  console.error("Yükleme Hatası:", error);
                   alert(`Hata: ${error.message}`);
                 }}
                 content={{
-                  label: "Fotoğraf Sürükle veya Tıkla",
-                  allowedContent: "Resim (Maks 4MB)",
+                  // Devasa ikonu burada manuel küçültüyoruz
+                  uploadIcon: (
+                    <svg
+                      className="w-8 h-8 text-blue-500 mb-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  ),
+                  label: "Fotoğraf Seç veya Sürükle",
+                  allowedContent: "Maksimum 4MB",
                 }}
                 appearance={{
                   container:
-                    "border-2 border-dashed border-gray-200 rounded-2xl p-4 bg-gray-50 cursor-pointer hover:border-blue-400 transition min-h-[150px]",
-                  label: "text-blue-600 font-semibold",
-                  allowedContent: "text-gray-400 text-xs",
-                  // Butonu tamamen gizlemek yerine, sadece dosya seçildikten sonra
-                  // "Upload" demek için küçük ve şık bir hale getirelim
+                    "flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl p-4 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer min-h-[140px]",
+                  label: "text-blue-600 font-semibold text-sm",
+                  allowedContent: "text-gray-400 text-[10px] mt-1",
+                  // Butonu küçük ve şık yapıyoruz ki "Loading" aşamasını görebilelim
                   button:
-                    "bg-blue-600 text-white text-sm px-4 py-2 rounded-lg mt-2 ut-ready:bg-blue-600 ut-uploading:bg-blue-400",
+                    "bg-blue-600 text-white text-xs px-4 py-2 rounded-lg mt-3 ut-ready:bg-blue-600 ut-uploading:cursor-not-allowed",
                 }}
               />
             </div>
