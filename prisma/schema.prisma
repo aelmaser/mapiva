@@ -35,6 +35,7 @@ model BlogPost {
   imageUrl  String
   userId    String
   createdAt DateTime @default(now())
+
+  @@map("BlogPost") // Bu satır Prisma'ya "Veritabanında tam olarak bu ismi kullan" der.
 }
 
-@@map("BlogPost") // Bu satır Prisma'ya "Veritabanında tam olarak bu ismi kullan" der.
