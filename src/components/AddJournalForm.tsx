@@ -29,7 +29,9 @@ export default function AddJournalForm() {
         setTitle("");
         setContent("");
         setImageUrl(null);
-        router.refresh();
+        // YENİ: Kullanıcıyı blog listesine geri gönder veya sayfayı yenile
+        router.push("/blog"); // Eğer başka bir sayfadaysa bloga atar
+        router.refresh(); // Sayfadaki verilerin güncellenmesini sağlar
       } else {
         const errorData = await response.text();
         alert(`Hata: ${errorData}`);
