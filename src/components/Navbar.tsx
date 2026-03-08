@@ -5,14 +5,13 @@ import Link from "next/link";
 import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function Navbar() {
-  // Mobilde menünün açık/kapalı durumunu tutan state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Sol Taraf: Logo */}
+          {/* Logo (Her ekranda görünür) */}
           <Link
             href="/"
             className="font-bold text-xl text-blue-600 flex items-center gap-2 z-10"
@@ -20,7 +19,7 @@ export default function Navbar() {
             🌍 Mapiva
           </Link>
 
-          {/* Orta: Masaüstü Linkleri (Mobilde Gizli) */}
+          {/* Masaüstü Menü (Mobilde gizli, PC'de görünür) */}
           <div className="hidden md:flex items-center gap-8">
             <Link
               href="/"
@@ -42,13 +41,14 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Sağ Taraf: Kimlik Doğrulama ve Hamburger Butonu */}
+          {/* Sağ Taraf: Profil ve Hamburger */}
           <div className="flex items-center gap-4 z-10">
-            {/* Masaüstü ve Mobil Ortak Profil Butonu */}
+            {/* Giriş yapılmışsa profil fotosu */}
             <SignedIn>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
 
+            {/* Giriş yapılmamışsa PC'de "Giriş Yap" butonu */}
             <SignedOut>
               <div className="hidden md:block">
                 <SignInButton mode="modal">
@@ -59,7 +59,7 @@ export default function Navbar() {
               </div>
             </SignedOut>
 
-            {/* Mobil Hamburger Butonu */}
+            {/* Mobil Hamburger Butonu (PC'de gizli, Mobilde görünür) */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 -mr-2 text-gray-600 hover:bg-gray-50 rounded-lg focus:outline-none"
@@ -106,7 +106,7 @@ export default function Navbar() {
             onClick={() => setIsMobileMenuOpen(false)}
             className="block px-2 py-2 text-gray-700 font-medium hover:bg-blue-50 hover:text-blue-600 rounded-lg transition"
           >
-            Blog
+            Seyahat Günlükleri
           </Link>
           <Link
             href="/about"
@@ -116,7 +116,6 @@ export default function Navbar() {
             Hakkında
           </Link>
 
-          {/* Mobilde Giriş Yap Butonu (Eğer giriş yapılmamışsa) */}
           <SignedOut>
             <div className="pt-2 border-t border-gray-100">
               <SignInButton mode="modal">
