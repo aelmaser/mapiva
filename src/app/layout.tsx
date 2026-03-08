@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 // Google Fonts'tan Inter fontunu çekiyoruz. Profesyonel görünür.
 import { Inter } from "next/font/google";
-import "@uploadthing/react/styles.css";
+//import "@uploadthing/react/styles.css";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 
