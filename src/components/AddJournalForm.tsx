@@ -112,10 +112,21 @@ export default function AddJournalForm() {
                 onClientUploadComplete={(res) => {
                   if (res && res[0]) {
                     setImageUrl(res[0].url);
+                    // alert yerine daha şık bir log veya küçük bir bildirim de olabilir
+                    console.log("Yükleme başarılı:", res[0].url);
                   }
                 }}
                 onUploadError={(error: Error) => {
                   alert(`Hata: ${error.message}`);
+                }}
+                // Görsel çakışmaları engellemek için buton metinlerini sabitleyelim
+                content={{
+                  button({ ready, isUploading }) {
+                    if (isUploading) return "Yükleniyor...";
+                    if (ready) return "Fotoğraf Seç";
+                    return "Hazırlanıyor...";
+                  },
+                  allowedContent: "Resim (Maks 4MB)",
                 }}
                 appearance={{
                   button:
