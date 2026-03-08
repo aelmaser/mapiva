@@ -108,10 +108,39 @@ export default function AddJournalForm() {
                   alert(`Hata: ${error.message}`);
                 }}
                 content={{
-                  label: "Buraya sürükle veya tıkla",
-                  allowedContent: "Sadece resim dosyaları",
+                  label: "Fotoğraf Sürükle veya Tıkla",
+                  allowedContent: "Resim (Maks 4MB)",
+                  uploadIcon: (
+                    // O devasa varsayılan ikon yerine daha küçük bir SVG ikon koyuyoruz
+                    <svg
+                      className="w-10 h-10 text-gray-400 mb-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  ),
                 }}
-                className="ut-label:text-blue-600 ut-button:bg-blue-600 ut-button:px-6 ut-button:rounded-xl"
+                // === KRİTİK TASARIM DÜZENLEMELERİ BURADA ===
+                appearance={{
+                  container:
+                    "border-2 border-dashed border-gray-200 rounded-2xl p-6 bg-gray-50 flex flex-col items-center justify-center cursor-pointer hover:border-blue-300 transition",
+                  label: "text-sm font-medium text-blue-600",
+                  allowedContent: "text-xs text-gray-500 mt-1",
+                  button: "hidden", // Varsayılan mavi butonu gizliyoruz, dropzone'un kendisi tıklanabilir
+                }}
               />
             </div>
           )}
