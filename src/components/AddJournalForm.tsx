@@ -2,12 +2,15 @@
 
 import React, { useState } from "react";
 import { UploadButton } from "@/lib/uploadthing";
+import { useRouter } from "next/navigation"; // YENİ: Sayfayı yenilemek için
 
 export default function AddJournalForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const router = useRouter(); // YENİ
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,11 +21,33 @@ export default function AddJournalForm() {
 
     setIsSubmitting(true);
 
-    // Burada veritabanına kaydetme işlemini yapacağız (Bir sonraki adım)
-    console.log("Kaydedilecek Veri:", { title, content, imageUrl });
+    try {
+      // YENİ: Hazırladığımız API'ye verileri gönderiyoruz
+      const response = await fetch("/api/blog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, content, imageUrl }),
+      });
 
-    alert("Harika! Günlüğünüz başarıyla eklendi.");
-    setIsSubmitting(false);
+      if (!response.ok) {
+        throw new Error("Bir hata oluştu");
+      }
+
+      alert("Harika! Günlüğünüz başarıyla eklendi. 🌍");
+
+      // Formu temizle
+      setTitle("");
+      setContent("");
+      setImageUrl(null);
+
+      // Sayfayı yenile (yeni yazıyı görmek için)
+      router.refresh();
+    } catch (error) {
+      alert("Günlük kaydedilemedi. Lütfen tekrar deneyin.");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -75,7 +100,7 @@ export default function AddJournalForm() {
               <button
                 type="button"
                 onClick={() => setImageUrl(null)}
-                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-lg text-sm hover:bg-red-600"
+                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-lg text-sm hover:bg-red-600 shadow-md"
               >
                 Sil
               </button>
