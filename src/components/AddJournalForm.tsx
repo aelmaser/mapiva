@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { UploadButton } from "@/lib/uploadthing";
-import { useRouter } from "next/navigation"; // YENİ: Sayfayı yenilemek için
+import { UploadDropzone } from "@/lib/uploadthing"; // Dropzone daha stabil çalışır
+import { useRouter } from "next/navigation";
 
 export default function AddJournalForm() {
   const [title, setTitle] = useState("");
@@ -10,41 +10,30 @@ export default function AddJournalForm() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const router = useRouter(); // YENİ
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!imageUrl) {
-      alert("Lütfen bir fotoğraf yükleyin!");
-      return;
-    }
+    if (!imageUrl) return;
 
     setIsSubmitting(true);
-
     try {
-      // YENİ: Hazırladığımız API'ye verileri gönderiyoruz
       const response = await fetch("/api/blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content, imageUrl }),
       });
 
-      if (!response.ok) {
-        throw new Error("Bir hata oluştu");
+      if (response.ok) {
+        alert("Günlük başarıyla paylaşıldı! 🌍");
+        setTitle("");
+        setContent("");
+        setImageUrl(null);
+        router.refresh();
       }
-
-      alert("Harika! Günlüğünüz başarıyla eklendi. 🌍");
-
-      // Formu temizle
-      setTitle("");
-      setContent("");
-      setImageUrl(null);
-
-      // Sayfayı yenile (yeni yazıyı görmek için)
-      router.refresh();
     } catch (error) {
-      alert("Günlük kaydedilemedi. Lütfen tekrar deneyin.");
       console.error(error);
+      alert("Hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -64,8 +53,8 @@ export default function AddJournalForm() {
           <input
             type="text"
             required
-            placeholder="Örn: Hafta Sonu Kapadokya Maceram"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+            placeholder="Nereyi gezdin?"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -78,8 +67,8 @@ export default function AddJournalForm() {
           <textarea
             required
             rows={4}
-            placeholder="Neler yaşadın, nereleri gezdin? Detayları paylaş..."
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition resize-none"
+            placeholder="Neler yaşadın?"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
@@ -87,52 +76,42 @@ export default function AddJournalForm() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            En Güzel Fotoğraf (1 Adet)
+            Fotoğraf
           </label>
 
           {imageUrl ? (
-            <div className="relative rounded-xl overflow-hidden border border-gray-200 h-48 w-full md:w-1/2">
+            <div className="relative rounded-xl overflow-hidden border h-48 w-full md:w-1/2">
               <img
                 src={imageUrl}
-                alt="Yüklenen"
+                alt="Önizleme"
                 className="object-cover w-full h-full"
               />
               <button
                 type="button"
                 onClick={() => setImageUrl(null)}
-                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-lg text-sm hover:bg-red-600 shadow-md"
+                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs"
               >
-                Sil
+                Sil ve Yenisini Yükle
               </button>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition">
-              <UploadButton
+            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50">
+              <UploadDropzone
                 endpoint="imageUploader"
                 onClientUploadComplete={(res) => {
                   if (res && res[0]) {
                     setImageUrl(res[0].url);
-                    // alert yerine daha şık bir log veya küçük bir bildirim de olabilir
-                    console.log("Yükleme başarılı:", res[0].url);
+                    console.log("Dosya URL:", res[0].url);
                   }
                 }}
                 onUploadError={(error: Error) => {
                   alert(`Hata: ${error.message}`);
                 }}
-                // Görsel çakışmaları engellemek için buton metinlerini sabitleyelim
                 content={{
-                  button({ ready, isUploading }) {
-                    if (isUploading) return "Yükleniyor...";
-                    if (ready) return "Fotoğraf Seç";
-                    return "Hazırlanıyor...";
-                  },
-                  allowedContent: "Resim (Maks 4MB)",
+                  label: "Buraya sürükle veya tıkla",
+                  allowedContent: "Sadece resim dosyaları",
                 }}
-                appearance={{
-                  button:
-                    "bg-blue-600 text-white px-6 py-2 rounded-xl font-medium hover:bg-blue-700 transition w-auto",
-                  allowedContent: "text-gray-500 text-xs mt-2",
-                }}
+                className="ut-label:text-blue-600 ut-button:bg-blue-600 ut-button:px-6 ut-button:rounded-xl"
               />
             </div>
           )}
@@ -141,9 +120,9 @@ export default function AddJournalForm() {
         <button
           type="submit"
           disabled={isSubmitting || !imageUrl}
-          className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 transition shadow-lg"
         >
-          {isSubmitting ? "Paylaşılıyor..." : "Günlüğümü Paylaş 🚀"}
+          {isSubmitting ? "Kaydediliyor..." : "Günlüğümü Paylaş 🚀"}
         </button>
       </form>
     </div>
