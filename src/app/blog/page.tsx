@@ -1,54 +1,117 @@
 import React from "react";
-import Link from "next/link";
-import { BLOG_POSTS } from "@/lib/blogData"; // Veriyi içe aktar
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import AddJournalForm from "@/components/AddJournalForm";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+
+// Şimdilik veritabanı yerine eski yazılarını burada statik tutuyoruz.
+// Veritabanını bağladığımızda bu listeyi otomatik olarak Prisma'dan çekeceğiz.
+const staticPosts = [
+  {
+    id: "1",
+    title: "Tarihin İzinde: Çanakkale Turu",
+    excerpt:
+      "Şehitlikler, Truva Antik Kenti ve o muazzam boğaz manzarası eşliğinde unutulmaz bir tarih yolculuğu yaşadım. Herkesin mutlaka görmesi gereken bir yer.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1598887142487-3c854d6ec0ff?q=80&w=800&auto=format&fit=crop",
+    author: "Kurucu",
+    date: "15 Şubat 2026",
+  },
+  {
+    id: "2",
+    title: "Kocaeli: Körfezin İncisi",
+    excerpt:
+      "Sekapark'ta deniz havası almak, yemyeşil doğasında yürüyüş yapmak harikaydı. Tabii ki meşhur pişmaniyesinden tatmadan dönmedim!",
+    imageUrl:
+      "https://images.unsplash.com/photo-1578912891392-74d75db9576c?q=80&w=800&auto=format&fit=crop",
+    author: "Kurucu",
+    date: "28 Şubat 2026",
+  },
+];
 
 export default function BlogPage() {
   return (
-    <main className="min-h-screen bg-white py-12 px-4 md:px-8">
-      <div className="max-w-5xl mx-auto mb-12 text-center space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900">Seyahat Günlüğü</h1>
-        <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-          Türkiye'nin dört bir yanından gezi notları, lezzet durakları ve
-          ipuçları.
-        </p>
+    <main className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
+
+      <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 md:py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
+            Seyahat Günlükleri
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Topluluğumuzun keşfettiği harika yerleri incele veya kendi anılarını
+            paylaş.
+          </p>
+        </div>
+
+        {/* --- YENİ YAZI EKLEME FORMU (SADECE GİRİŞ YAPANLARA) --- */}
+        <SignedIn>
+          <AddJournalForm />
+        </SignedIn>
+
+        {/* --- GİRİŞ YAPMAYANLARA TEŞVİK ALANI --- */}
+        <SignedOut>
+          <div className="bg-white border border-blue-100 rounded-2xl p-6 md:p-8 text-center mb-12 shadow-sm flex flex-col items-center justify-center">
+            <span className="text-5xl mb-4">🌍</span>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              Kendi Seyahatini Paylaş
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-md">
+              Sen de gezdiğin yerleri ve çektiğin harika fotoğrafları diğer
+              gezginlerle paylaşmak ister misin?
+            </p>
+            <SignInButton mode="modal">
+              <button className="bg-blue-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">
+                Giriş Yap ve Yazmaya Başla
+              </button>
+            </SignInButton>
+          </div>
+        </SignedOut>
+
+        {/* --- YAZILARIN LİSTELENDİĞİ KISIM --- */}
+        <div className="mt-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <span>📚</span> Son Eklenen Günlükler
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {staticPosts.map((post) => (
+              <div
+                key={post.id}
+                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition group"
+              >
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                  />
+                </div>
+                <div className="p-5">
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                    <span className="font-medium bg-gray-100 px-2.5 py-1 rounded-md">
+                      {post.author}
+                    </span>
+                    <span>{post.date}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">
+                    {post.title}
+                  </h3>
+                  <p className="text-gray-600 line-clamp-3 text-sm leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                  <button className="mt-4 text-blue-600 font-medium text-sm hover:text-blue-800 transition flex items-center gap-1">
+                    Devamını Oku <span className="text-lg">›</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {BLOG_POSTS.map((post) => (
-          <Link href={`/blog/${post.slug}`} key={post.id} className="group">
-            <article className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition duration-300 h-full flex flex-col">
-              <div className="relative h-48 w-full overflow-hidden">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition duration-500"
-                />
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-blue-600">
-                  {post.category}
-                </div>
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
-                  <span>📅 {post.date}</span>
-                  <span>⏱️ {post.readTime} okuma</span>
-                </div>
-                <h2 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition">
-                  {post.title}
-                </h2>
-                <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-1">
-                  {post.excerpt}
-                </p>
-                <div className="text-blue-600 font-medium text-sm flex items-center gap-1">
-                  Devamını Oku{" "}
-                  <span className="group-hover:translate-x-1 transition-transform">
-                    →
-                  </span>
-                </div>
-              </div>
-            </article>
-          </Link>
-        ))}
-      </div>
+      <Footer />
     </main>
   );
 }
