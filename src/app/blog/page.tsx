@@ -1,20 +1,22 @@
 import React from "react";
 import AddJournalForm from "@/components/AddJournalForm";
+import { auth } from "@clerk/nextjs/server";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-import { db } from "@/lib/db"; // Singleton Prisma bağlantımız
+import { db } from "@/lib/db";
 
-// Sunucu tarafında verileri çekiyoruz
 async function getPosts() {
   const posts = await db.blogPost.findMany({
-    orderBy: {
-      createdAt: "desc", // En yeni post en üstte gözüksün
-    },
+    orderBy: { createdAt: "desc" },
   });
   return posts;
 }
 
 export default async function BlogPage() {
   const posts = await getPosts();
+  const { userId } = await auth();
+
+  // Kullanıcı Admin mi kontrol et
+  const isAdmin = userId === process.env.ADMIN_USER_ID;
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
@@ -24,14 +26,17 @@ export default async function BlogPage() {
             Seyahat Günlükleri
           </h1>
           <p className="text-gray-600 text-lg">
-            Topluluğumuzun keşfettiği harika yerleri incele.
+            Mapiva topluluğunun keşfettiği harika yerleri incele veya kendi
+            hikayeni paylaş.
           </p>
         </div>
 
+        {/* Giriş Yapan Herkese Formu Gösteriyoruz ama isAdmin bilgisini de veriyoruz */}
         <SignedIn>
-          <AddJournalForm />
+          <AddJournalForm isAdmin={isAdmin} />
         </SignedIn>
 
+        {/* Giriş Yapmayanlardan Kayıt İstiyoruz */}
         <SignedOut>
           <div className="bg-white border border-blue-100 rounded-2xl p-6 text-center mb-12 shadow-sm">
             <h3 className="text-xl font-bold text-gray-800 mb-2">

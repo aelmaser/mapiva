@@ -5,17 +5,26 @@ import { db } from "@/lib/db";
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
-    if (!userId) return new NextResponse("Giriş yapmalısınız", { status: 401 });
+    
+    // 1. Kullanıcı giriş yapmış mı?
+    if (!userId) {
+      return new NextResponse("Yetkisiz", { status: 401 });
+    }
+
+    // 2. Giren kişi Admin (Sen) misin? (ÇOK KRİTİK EKLENTİ)
+    if (userId !== process.env.ADMIN_USER_ID) {
+      return new NextResponse("Sadece yöneticiler günlük ekleyebilir.", { status: 403 });
+    }
 
     const body = await req.json();
     const { title, content, imageUrl } = body;
 
-    // Konsola ne geldiğini yazdıralım (Vercel Logs'ta görünür)
-    console.log("Gelen Veriler:", { title, content, imageUrl, userId });
+    if (!title || !content || !imageUrl) {
+      return new NextResponse("Eksik alanlar", { status: 400 });
+    }
 
     const excerpt = content.length > 120 ? content.substring(0, 120) + "..." : content;
 
-    // VERİTABANI KAYDI
     const blogPost = await db.blogPost.create({
       data: {
         title,
@@ -28,7 +37,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(blogPost);
   } catch (error: any) {
-    // HATAYI DETAYLI GÖRELİM
     console.error("KRİTİK_HATA:", error.message);
     return new NextResponse(`Veritabanı Hatası: ${error.message}`, { status: 500 });
   }

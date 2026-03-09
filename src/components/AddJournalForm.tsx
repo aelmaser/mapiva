@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { UploadButton } from "@/lib/uploadthing";
 import { useRouter } from "next/navigation";
 
-export default function AddJournalForm() {
+// Dışarıdan isAdmin bilgisini alıyoruz
+export default function AddJournalForm({ isAdmin }: { isAdmin: boolean }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -17,36 +18,66 @@ export default function AddJournalForm() {
     if (!imageUrl) return;
 
     setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/blog", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content, imageUrl }),
-      });
 
-      if (response.ok) {
-        alert("Günlük başarıyla paylaşıldı! 🌍");
-        setTitle("");
-        setContent("");
-        setImageUrl(null);
-        // YENİ: Kullanıcıyı blog listesine geri gönder veya sayfayı yenile
-        router.push("/blog"); // Eğer başka bir sayfadaysa bloga atar
-        router.refresh(); // Sayfadaki verilerin güncellenmesini sağlar
-      } else {
-        const errorData = await response.text();
-        alert(`Hata: ${errorData}`);
+    if (isAdmin) {
+      // 👑 ADMİN: Doğrudan Veritabanına Kaydet
+      try {
+        const response = await fetch("/api/blog", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, content, imageUrl }),
+        });
+
+        if (response.ok) {
+          alert("Günlük başarıyla paylaşıldı! 🌍");
+          setTitle("");
+          setContent("");
+          setImageUrl(null);
+          router.refresh();
+        } else {
+          alert("Kayıt sırasında bir hata oluştu.");
+        }
+      } catch (error) {
+        alert("Bağlantı hatası.");
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error) {
-      alert("Kayıt sırasında bir hata oluştu.");
-    } finally {
+    } else {
+      // 👤 MİSAFİR: Editöre Mail Gönder
+      const EDITOR_EMAIL = "seninmailin@gmail.com"; // BURAYA KENDİ MAİLİNİ YAZ
+
+      const emailSubject = encodeURIComponent(
+        `Mapiva Yeni Günlük Önerisi: ${title}`,
+      );
+      const emailBody = encodeURIComponent(
+        `Merhaba Editör,\n\nYeni bir günlük önerisi var!\n\n` +
+          `Başlık: ${title}\n` +
+          `İçerik: ${content}\n\n` +
+          `Fotoğraf URL'si: ${imageUrl}\n\n` +
+          `Lütfen inceleyip onaylayın.`,
+      );
+
+      // Kullanıcının varsayılan mail uygulamasını açar
+      window.location.href = `mailto:${EDITOR_EMAIL}?subject=${emailSubject}&body=${emailBody}`;
+
+      alert(
+        "Mail uygulamanız açılıyor... Lütfen oluşan maili taslaklardan onaylayıp gönderin! ✉️",
+      );
+
+      setTitle("");
+      setContent("");
+      setImageUrl(null);
       setIsSubmitting(false);
     }
   };
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 mb-8">
+      {/* Başlığı dinamik yaptık */}
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        Yeni Seyahat Günlüğü Ekle ✍️
+        {isAdmin
+          ? "Yeni Seyahat Günlüğü Ekle 👑"
+          : "Günlüğünü Editöre Gönder ✍️"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -70,7 +101,7 @@ export default function AddJournalForm() {
 
         <div className="flex flex-col items-start gap-4">
           <label className="text-sm font-medium text-gray-700">
-            Fotoğraf Yükle
+            Fotoğraf Yükle (Zorunlu)
           </label>
 
           {imageUrl ? (
@@ -92,17 +123,15 @@ export default function AddJournalForm() {
             <UploadButton
               endpoint="imageUploader"
               onClientUploadComplete={(res) => {
-                if (res && res[0]) {
-                  setImageUrl(res[0].url);
-                }
+                if (res && res[0]) setImageUrl(res[0].url);
               }}
-              onUploadError={(error: Error) => {
-                alert(`Yükleme Hatası: ${error.message}`);
-              }}
+              onUploadError={(error: Error) =>
+                alert(`Yükleme Hatası: ${error.message}`)
+              }
               appearance={{
                 button:
                   "bg-blue-600 text-white px-6 py-2 rounded-xl font-medium hover:bg-blue-700 transition w-auto",
-                allowedContent: "hidden", // O alt yazıları gizleyip sade tutuyoruz
+                allowedContent: "hidden",
               }}
               content={{
                 button({ isUploading }) {
@@ -119,7 +148,11 @@ export default function AddJournalForm() {
           disabled={isSubmitting || !imageUrl}
           className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 transition shadow-xl shadow-blue-600/20"
         >
-          {isSubmitting ? "Kaydediliyor..." : "Günlüğümü Paylaş 🚀"}
+          {isSubmitting
+            ? "İşleniyor..."
+            : isAdmin
+              ? "Günlüğümü Paylaş 🚀"
+              : "İnceleme İçin Gönder ✉️"}
         </button>
       </form>
     </div>
