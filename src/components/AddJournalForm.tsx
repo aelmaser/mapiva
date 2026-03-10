@@ -44,7 +44,7 @@ export default function AddJournalForm({ isAdmin }: { isAdmin: boolean }) {
       }
     } else {
       // 👤 MİSAFİR: Editöre Mail Gönder
-      const EDITOR_EMAIL = "seninmailin@gmail.com"; // BURAYA KENDİ MAİLİNİ YAZ
+      const EDITOR_EMAIL = "alperelmaser11@gmail.com"; // BURAYA KENDİ MAİLİNİ YAZ
 
       const emailSubject = encodeURIComponent(
         `Mapiva Yeni Günlük Önerisi: ${title}`,

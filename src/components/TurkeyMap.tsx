@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { saveVisit, deleteVisit } from "@/app/actions";
+import { getCityData } from "@/data/cities"; // YENİ: Veri çekme fonksiyonumuz
 
 const geoUrl = "/turkey-map.json";
 
@@ -24,6 +25,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
   const [activeCity, setActiveCity] = useState<{ name: string } | null>(null);
   const [note, setNote] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [tooltip, setTooltip] = useState<{
     name: string;
     x: number;
@@ -53,7 +55,6 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeCity) return;
-
     setIsSaving(true);
 
     const formData = new FormData();
@@ -67,19 +68,14 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
       await saveVisit(formData);
       setActiveCity(null);
     } catch (error) {
-      console.error("Kayıt hatası:", error);
       alert("Bir hata oluştu!");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const [isDeleting, setIsDeleting] = useState(false); // Silme yükleniyor state'i
-
   const handleDelete = async () => {
     if (!activeCity) return;
-
-    // Kullanıcıdan onay isteyelim ki yanlışlıkla silmesin
     if (
       !confirm(
         `${activeCity.name} şehrini gezdiğin şehirler listenden silmek istediğine emin misin?`,
@@ -93,9 +89,8 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
 
     try {
       await deleteVisit(formData);
-      setActiveCity(null); // Modalı kapat
+      setActiveCity(null);
     } catch (error) {
-      console.error("Silme hatası:", error);
       alert("Silinirken bir hata oluştu!");
     } finally {
       setIsDeleting(false);
@@ -105,6 +100,9 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
   const isCityVisited = (geoName: string) => {
     return visitedCities.some((v) => v.cityName === geoName);
   };
+
+  // YENİ: Tıklanan şehrin detaylarını çekiyoruz
+  const cityInfo = activeCity ? getCityData(activeCity.name) : null;
 
   return (
     <div className="w-full h-auto relative bg-blue-50 rounded-xl overflow-hidden shadow-2xl border border-blue-100">
@@ -124,10 +122,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
 
       <ComposableMap
         projection="geoMercator"
-        projectionConfig={{
-          scale: 2300,
-          center: [35.2, 39],
-        }}
+        projectionConfig={{ scale: 2300, center: [35.2, 39] }}
         className="w-full h-full"
       >
         <Geographies geography={geoUrl}>
@@ -141,15 +136,13 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                   key={geo.rsmKey}
                   geography={geo}
                   onClick={() => setActiveCity({ name: cityName })}
-                  onMouseEnter={(e) => {
-                    setTooltip({ name: cityName, x: e.clientX, y: e.clientY });
-                  }}
-                  onMouseMove={(e) => {
-                    setTooltip({ name: cityName, x: e.clientX, y: e.clientY });
-                  }}
-                  onMouseLeave={() => {
-                    setTooltip(null);
-                  }}
+                  onMouseEnter={(e) =>
+                    setTooltip({ name: cityName, x: e.clientX, y: e.clientY })
+                  }
+                  onMouseMove={(e) =>
+                    setTooltip({ name: cityName, x: e.clientX, y: e.clientY })
+                  }
+                  onMouseLeave={() => setTooltip(null)}
                   style={{
                     default: {
                       fill: isVisited ? "#22c55e" : "#e5e7eb",
@@ -166,10 +159,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                       cursor: "pointer",
                       filter: "drop-shadow(0 0 4px rgba(0,0,0,0.2))",
                     },
-                    pressed: {
-                      fill: "#2563eb",
-                      outline: "none",
-                    },
+                    pressed: { fill: "#2563eb", outline: "none" },
                   }}
                 />
               );
@@ -178,21 +168,25 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
         </Geographies>
       </ComposableMap>
 
-      {/* Şehir Detay Modalı (Temizlenmiş Hali) */}
-      {activeCity && (
+      {/* YENİ ŞEHİR DETAY MODALI */}
+      {activeCity && cityInfo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 relative max-h-[90vh] flex flex-col">
-            {/* Modal Başlık */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-4 flex justify-between items-center shrink-0">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                📍 {activeCity.name}
-              </h3>
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 relative max-h-[90vh] flex flex-col animate-in zoom-in duration-200">
+            {/* Şehir Görseli ve Kapatma Butonu (Header yerine geçti) */}
+            <div className="relative h-48 md:h-56 shrink-0 w-full">
+              <img
+                src={cityInfo.imageUrl}
+                alt={cityInfo.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
               <button
                 onClick={() => setActiveCity(null)}
-                className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-1 transition"
+                className="absolute top-4 right-4 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 backdrop-blur-md transition"
               >
                 <svg
-                  className="w-6 h-6"
+                  className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -205,13 +199,24 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                   />
                 </svg>
               </button>
+
+              <div className="absolute bottom-4 left-5 right-5">
+                <h3 className="text-3xl font-extrabold text-white drop-shadow-lg flex items-center gap-2">
+                  📍 {cityInfo.name}
+                </h3>
+              </div>
             </div>
 
-            {/* Modal Form (Kaydırılabilir Alan) */}
-            <div className="overflow-y-auto p-6">
-              <form onSubmit={handleSave} className="space-y-4">
+            {/* Kaydırılabilir Alan: Açıklama + Mevcut Form */}
+            <div className="overflow-y-auto p-6 flex flex-col gap-6">
+              {/* Şehir Tanıtım Metni */}
+              <div className="text-gray-600 text-sm md:text-base leading-relaxed border-b border-gray-100 pb-5">
+                {cityInfo.description}
+              </div>
+
+              {/* Senin Orijinal Kayıt Formun */}
+              <form onSubmit={handleSave} className="space-y-5">
                 <div className="flex gap-4">
-                  {/* Tarih Seçici */}
                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Ziyaret Tarihi
@@ -224,7 +229,6 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                     />
                   </div>
 
-                  {/* Puanlama (Yıldızlar) */}
                   <div className="flex-1">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Puanın ({rating}/5)
@@ -238,11 +242,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                           className="focus:outline-none transform hover:scale-110 transition-transform"
                         >
                           <svg
-                            className={`w-8 h-8 ${
-                              star <= rating
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-300 fill-gray-100"
-                            }`}
+                            className={`w-7 h-7 md:w-8 md:h-8 ${star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300 fill-gray-100"}`}
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                             strokeWidth="1"
@@ -258,13 +258,14 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                     </div>
                   </div>
                 </div>
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Bu şehre dair notların:
                   </label>
                   <textarea
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none bg-gray-50 text-gray-800"
-                    rows={4}
+                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-gray-50 text-gray-800"
+                    rows={3}
                     placeholder="Gezdiğim yerler, yediğim yemekler..."
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
@@ -272,39 +273,22 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  {/* Eğer şehir zaten gezilmişse SİL butonunu göster */}
                   {isCityVisited(activeCity.name) && (
                     <button
                       type="button"
                       onClick={handleDelete}
                       disabled={isDeleting}
                       className="py-2.5 px-4 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
-                      title="Şehri Haritadan Sil"
                     >
                       {isDeleting ? "..." : "🗑️ Sil"}
                     </button>
                   )}
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveCity(null)}
-                    className="flex-1 py-2.5 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
-                  >
-                    İptal
-                  </button>
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 disabled:opacity-70 flex items-center justify-center gap-2"
                   >
-                    {isSaving ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Kaydediliyor...
-                      </>
-                    ) : (
-                      "Kaydet & Boya"
-                    )}
+                    {isSaving ? "Kaydediliyor..." : "Kaydet & Boya"}
                   </button>
                 </div>
               </form>
@@ -317,10 +301,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
       {tooltip && (
         <div
           className="fixed pointer-events-none z-[60] bg-gray-900 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-xl transform -translate-x-1/2 -translate-y-full border border-gray-700 backdrop-blur-sm bg-opacity-90 hidden md:block"
-          style={{
-            left: tooltip.x,
-            top: tooltip.y - 15,
-          }}
+          style={{ left: tooltip.x, top: tooltip.y - 15 }}
         >
           {tooltip.name}
         </div>
