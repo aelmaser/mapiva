@@ -3,6 +3,7 @@ import AddJournalForm from "@/components/AddJournalForm";
 import { auth } from "@clerk/nextjs/server";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { db } from "@/lib/db";
+import Link from "next/link";
 
 async function getPosts() {
   const posts = await db.blogPost.findMany({
@@ -57,39 +58,45 @@ export default async function BlogPage() {
 
           {posts.length === 0 ? (
             <div className="text-center py-12 text-gray-500 italic">
-              Henüz hiç günlük paylaşılmamış. İlk adımı sen at!
+              Henüz hiç günlük paylaşılmamış.
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {posts.map((post) => (
-                <div
+                // DİKKAT: Kartı div yerine Link ile sarmaladık ve href verdik
+                <Link
+                  href={`/blog/${post.id}`}
                   key={post.id}
-                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition group"
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group block cursor-pointer"
                 >
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-56 overflow-hidden relative">
                     <img
                       src={post.imageUrl}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     />
+                    <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition"></div>
                   </div>
-                  <div className="p-5">
+                  <div className="p-6">
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                      <span className="font-medium bg-gray-100 px-2.5 py-1 rounded-md">
-                        Gezgin
+                      <span className="font-medium bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">
+                        Editör
                       </span>
                       <span>
                         {new Date(post.createdAt).toLocaleDateString("tr-TR")}
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3 line-clamp-1 group-hover:text-blue-600 transition-colors">
                       {post.title}
                     </h3>
                     <p className="text-gray-600 line-clamp-3 text-sm leading-relaxed">
                       {post.excerpt}
                     </p>
+                    <div className="mt-4 text-blue-600 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                      Devamını Oku <span>→</span>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
