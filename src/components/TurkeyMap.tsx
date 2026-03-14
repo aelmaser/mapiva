@@ -222,7 +222,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                     Senin Notun
                   </div>
                   <p className="text-gray-700 text-sm whitespace-pre-wrap italic">
-                    "{savedNote}"
+                    &quot;{savedNote}&quot;
                   </p>
                 </div>
               )}
