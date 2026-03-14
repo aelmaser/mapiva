@@ -184,38 +184,57 @@ export default function StatsSection({ visits }: { visits: VisitRecord[] }) {
             sortedVisits.map((visit) => (
               <div
                 key={visit.id}
-                className="p-4 hover:bg-gray-50 transition flex items-center justify-between group"
+                className="p-4 hover:bg-gray-50 transition flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 group"
               >
-                {/* Sol Taraf: Şehir ve Tarih */}
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
-                    {PLAKA_KODLARI[visit.cityName] ||
-                      visit.cityName.substring(0, 2).toUpperCase()}
+                {/* ÜST/SOL KISIM (Mobilde Şehir ve Puan yan yana, PC'de sadece Şehir) */}
+                <div className="flex items-center justify-between w-full md:w-auto">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                      {PLAKA_KODLARI[visit.cityName] ||
+                        visit.cityName.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-800">
+                        {visit.cityName}
+                      </h4>
+                      <p className="text-xs text-gray-500">
+                        {visit.visitDate
+                          ? new Date(visit.visitDate).toLocaleDateString(
+                              "tr-TR",
+                              {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              },
+                            )
+                          : "Tarih belirtilmemiş"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-gray-800">
-                      {visit.cityName}
-                    </h4>
-                    <p className="text-xs text-gray-500">
-                      {visit.visitDate
-                        ? new Date(visit.visitDate).toLocaleDateString(
-                            "tr-TR",
-                            { day: "numeric", month: "long", year: "numeric" },
-                          )
-                        : "Tarih belirtilmemiş"}
-                    </p>
+
+                  {/* MOBİL İÇİN PUAN (Sadece mobilde sağ üstte görünür) */}
+                  <div className="md:hidden flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-100 shrink-0">
+                    <span className="font-bold text-yellow-700 text-sm">
+                      {visit.rating || "-"}
+                    </span>
+                    <svg
+                      className="w-4 h-4 text-yellow-500 fill-current"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
                   </div>
                 </div>
 
-                {/* Orta: Not (Varsa) */}
+                {/* ORTA: NOT KISMI (Mobilde kutu içinde alt satırda, PC'de ortada) */}
                 {visit.notes && (
-                  <div className="hidden md:block text-sm text-gray-600 italic max-w-xs truncate">
+                  <div className="text-sm text-gray-600 italic md:max-w-xs md:truncate bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-xl md:rounded-none border border-gray-100 md:border-none">
                     &quot;{visit.notes}&quot;
                   </div>
                 )}
 
-                {/* Sağ: Puan */}
-                <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-100">
+                {/* PC İÇİN PUAN (Sadece PC'de en sağda görünür) */}
+                <div className="hidden md:flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-100 shrink-0">
                   <span className="font-bold text-yellow-700 text-sm">
                     {visit.rating || "-"}
                   </span>
