@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { saveVisit, deleteVisit } from "@/app/actions";
-import { getCityData } from "@/data/cities"; // YENİ: Veri çekme fonksiyonumuz
+import { getCityData } from "@/data/cities"; // Şehir verilerini çektiğimiz dosya
 
 const geoUrl = "/turkey-map.json";
 
@@ -33,6 +33,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
   } | null>(null);
   const [visitDate, setVisitDate] = useState("");
   const [rating, setRating] = useState(0);
+  const [savedNote, setSavedNote] = useState<string | null>(null); // Mevcut notu ekranda şık göstermek için
 
   useEffect(() => {
     if (activeCity) {
@@ -40,6 +41,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
         (v) => v.cityName === activeCity.name,
       );
       setNote(existing?.notes || "");
+      setSavedNote(existing?.notes || null); // Ekrana basmak için kaydettik
 
       if (existing?.visitDate) {
         const d = new Date(existing.visitDate);
@@ -101,7 +103,6 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
     return visitedCities.some((v) => v.cityName === geoName);
   };
 
-  // YENİ: Tıklanan şehrin detaylarını çekiyoruz
   const cityInfo = activeCity ? getCityData(activeCity.name) : null;
 
   return (
@@ -157,7 +158,6 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                       strokeWidth: 1.5,
                       outline: "none",
                       cursor: "pointer",
-                      filter: "drop-shadow(0 0 4px rgba(0,0,0,0.2))",
                     },
                     pressed: { fill: "#2563eb", outline: "none" },
                   }}
@@ -168,12 +168,13 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
         </Geographies>
       </ComposableMap>
 
-      {/* YENİ ŞEHİR DETAY MODALI */}
+      {/* ŞEHİR DETAY MODALI */}
       {activeCity && cityInfo && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 relative max-h-[90vh] flex flex-col animate-in zoom-in duration-200">
-            {/* Şehir Görseli ve Kapatma Butonu (Header yerine geçti) */}
-            <div className="relative h-48 md:h-56 shrink-0 w-full">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          {/* max-h-[85vh] ile mobilde klavye açılınca taşmaları önlüyoruz */}
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all relative max-h-[85vh] flex flex-col">
+            {/* Şehir Görseli (Shrink-0 ile ezilmesini önledik) */}
+            <div className="relative h-40 md:h-56 shrink-0 w-full">
               <img
                 src={cityInfo.imageUrl}
                 alt={cityInfo.name}
@@ -183,7 +184,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
 
               <button
                 onClick={() => setActiveCity(null)}
-                className="absolute top-4 right-4 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 backdrop-blur-md transition"
+                className="absolute top-4 right-4 z-10 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 backdrop-blur-md transition"
               >
                 <svg
                   className="w-5 h-5"
@@ -200,37 +201,52 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                 </svg>
               </button>
 
-              <div className="absolute bottom-4 left-5 right-5">
-                <h3 className="text-3xl font-extrabold text-white drop-shadow-lg flex items-center gap-2">
+              <div className="absolute bottom-4 left-5 right-5 flex justify-between items-end">
+                <h3 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-lg flex items-center gap-2">
                   📍 {cityInfo.name}
                 </h3>
               </div>
             </div>
 
-            {/* Kaydırılabilir Alan: Açıklama + Mevcut Form */}
-            <div className="overflow-y-auto p-6 flex flex-col gap-6">
+            {/* Kaydırılabilir Alan */}
+            <div className="overflow-y-auto p-5 md:p-6 flex flex-col gap-5">
               {/* Şehir Tanıtım Metni */}
-              <div className="text-gray-600 text-sm md:text-base leading-relaxed border-b border-gray-100 pb-5">
+              <p className="text-gray-600 text-sm leading-relaxed border-b border-gray-100 pb-4">
                 {cityInfo.description}
-              </div>
+              </p>
 
-              {/* Senin Orijinal Kayıt Formun */}
-              <form onSubmit={handleSave} className="space-y-5">
-                <div className="flex gap-4">
+              {/* EĞER ŞEHİR GEZİLDİYSE VE NOT VARSA ŞIK BİR ŞEKİLDE GÖSTER */}
+              {isCityVisited(activeCity.name) && savedNote && (
+                <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 relative">
+                  <div className="absolute -top-3 left-4 bg-white px-2 text-xs font-bold text-blue-600 rounded-full border border-blue-100">
+                    Senin Notun
+                  </div>
+                  <p className="text-gray-700 text-sm whitespace-pre-wrap italic">
+                    "{savedNote}"
+                  </p>
+                </div>
+              )}
+
+              {/* Form Alanı */}
+              <form onSubmit={handleSave} className="space-y-4">
+                {/* DİKKAT: Mobilde alt alta (flex-col), bilgisayarda yan yana (md:flex-row) */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {/* Tarih Seçici */}
                   <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
                       Ziyaret Tarihi
                     </label>
                     <input
                       type="date"
                       value={visitDate}
                       onChange={(e) => setVisitDate(e.target.value)}
-                      className="w-full p-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-700 bg-gray-50"
+                      className="w-full p-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-700 bg-white"
                     />
                   </div>
 
+                  {/* Puanlama */}
                   <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
                       Puanın ({rating}/5)
                     </label>
                     <div className="flex gap-1">
@@ -242,7 +258,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                           className="focus:outline-none transform hover:scale-110 transition-transform"
                         >
                           <svg
-                            className={`w-7 h-7 md:w-8 md:h-8 ${star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300 fill-gray-100"}`}
+                            className={`w-7 h-7 sm:w-8 sm:h-8 ${star <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-100"}`}
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                             strokeWidth="1"
@@ -259,12 +275,15 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                   </div>
                 </div>
 
+                {/* Not Güncelleme Alanı */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Bu şehre dair notların:
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                    {isCityVisited(activeCity.name)
+                      ? "Notunu Güncelle:"
+                      : "Bu şehre dair notların:"}
                   </label>
                   <textarea
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-gray-50 text-gray-800"
+                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white text-gray-800 text-sm"
                     rows={3}
                     placeholder="Gezdiğim yerler, yediğim yemekler..."
                     value={note}
@@ -272,13 +291,14 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                   />
                 </div>
 
+                {/* Butonlar */}
                 <div className="flex gap-3 pt-2">
                   {isCityVisited(activeCity.name) && (
                     <button
                       type="button"
                       onClick={handleDelete}
                       disabled={isDeleting}
-                      className="py-2.5 px-4 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                      className="py-2.5 px-4 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors disabled:opacity-50 flex items-center justify-center shrink-0"
                     >
                       {isDeleting ? "..." : "🗑️ Sil"}
                     </button>
@@ -286,9 +306,13 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 disabled:opacity-70 flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 px-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 disabled:opacity-70 flex items-center justify-center gap-2 text-sm md:text-base"
                   >
-                    {isSaving ? "Kaydediliyor..." : "Kaydet & Boya"}
+                    {isSaving
+                      ? "Kaydediliyor..."
+                      : isCityVisited(activeCity.name)
+                        ? "Güncelle"
+                        : "Kaydet & Boya"}
                   </button>
                 </div>
               </form>
@@ -297,7 +321,7 @@ export default function TurkeyMap({ visitedCities }: TurkeyMapProps) {
         </div>
       )}
 
-      {/* Tooltip */}
+      {/* PC için Tooltip aynı kalıyor */}
       {tooltip && (
         <div
           className="fixed pointer-events-none z-[60] bg-gray-900 text-white text-sm font-bold px-3 py-1.5 rounded-lg shadow-xl transform -translate-x-1/2 -translate-y-full border border-gray-700 backdrop-blur-sm bg-opacity-90 hidden md:block"
