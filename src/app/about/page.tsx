@@ -43,6 +43,10 @@ export default function AboutPage() {
                 ✅ <span className="font-medium">Puanlama Sistemi:</span> En
                 iyileri hatırla.
               </li>
+              <li className="flex items-center gap-2">
+                ✅ <span className="font-medium">Anıları Blogda Paylaşma:</span>{" "}
+                Herkesle tatilini paylaş.
+              </li>
             </ul>
           </div>
 

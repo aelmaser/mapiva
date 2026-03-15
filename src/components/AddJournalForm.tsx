@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { UploadButton } from "@/lib/uploadthing";
 import { useRouter } from "next/navigation";
 
-// Dışarıdan isAdmin bilgisini alıyoruz
 export default function AddJournalForm({ isAdmin }: { isAdmin: boolean }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -15,7 +14,9 @@ export default function AddJournalForm({ isAdmin }: { isAdmin: boolean }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!imageUrl) return;
+
+    // Sadece admin ise fotoğraf zorunlu, misafir ise fotoğraf beklemiyoruz
+    if (isAdmin && !imageUrl) return;
 
     setIsSubmitting(true);
 
@@ -44,7 +45,7 @@ export default function AddJournalForm({ isAdmin }: { isAdmin: boolean }) {
       }
     } else {
       // 👤 MİSAFİR: Editöre Mail Gönder
-      const EDITOR_EMAIL = "alperelmaser11@gmail.com"; // BURAYA KENDİ MAİLİNİ YAZ
+      const EDITOR_EMAIL = "seninmailin@gmail.com"; // KENDİ MAİLİNİ YAZMAYI UNUTMA
 
       const emailSubject = encodeURIComponent(
         `Mapiva Yeni Günlük Önerisi: ${title}`,
@@ -53,27 +54,23 @@ export default function AddJournalForm({ isAdmin }: { isAdmin: boolean }) {
         `Merhaba Editör,\n\nYeni bir günlük önerisi var!\n\n` +
           `Başlık: ${title}\n` +
           `İçerik: ${content}\n\n` +
-          `Fotoğraf URL'si: ${imageUrl}\n\n` +
-          `Lütfen inceleyip onaylayın.`,
+          `⚠️ DİKKAT GEZGİN: Lütfen bu günlüğe ait fotoğrafı bu maile EK (Attachment) olarak eklemeyi unutma!\n\n`,
       );
 
-      // Kullanıcının varsayılan mail uygulamasını açar
       window.location.href = `mailto:${EDITOR_EMAIL}?subject=${emailSubject}&body=${emailBody}`;
 
       alert(
-        "Mail uygulamanız açılıyor... Lütfen oluşan maili taslaklardan onaylayıp gönderin! ✉️",
+        "Mail uygulamanız açılıyor... Lütfen fotoğrafınızı maile EK (Attachment) olarak koymayı unutmayın! ✉️",
       );
 
       setTitle("");
       setContent("");
-      setImageUrl(null);
       setIsSubmitting(false);
     }
   };
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 mb-8">
-      {/* Başlığı dinamik yaptık */}
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
         {isAdmin
           ? "Yeni Seyahat Günlüğü Ekle 👑"
@@ -99,53 +96,67 @@ export default function AddJournalForm({ isAdmin }: { isAdmin: boolean }) {
           onChange={(e) => setContent(e.target.value)}
         />
 
-        <div className="flex flex-col items-start gap-4">
-          <label className="text-sm font-medium text-gray-700">
-            Fotoğraf Yükle (Zorunlu)
-          </label>
+        {/* 📸 FOTOĞRAF ALANI: SADECE ADMİNSE GÖSTER */}
+        {isAdmin ? (
+          <div className="flex flex-col items-start gap-4">
+            <label className="text-sm font-medium text-gray-700">
+              Fotoğraf Yükle (Zorunlu)
+            </label>
 
-          {imageUrl ? (
-            <div className="relative rounded-xl overflow-hidden border h-48 w-full md:w-1/2">
-              <img
-                src={imageUrl}
-                alt="Önizleme"
-                className="object-cover w-full h-full"
+            {imageUrl ? (
+              <div className="relative rounded-xl overflow-hidden border h-48 w-full md:w-1/2">
+                <img
+                  src={imageUrl}
+                  alt="Önizleme"
+                  className="object-cover w-full h-full"
+                />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl(null)}
+                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg text-xs shadow-lg"
+                >
+                  Değiştir
+                </button>
+              </div>
+            ) : (
+              <UploadButton
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  if (res && res[0]) setImageUrl(res[0].url);
+                }}
+                onUploadError={(error: Error) =>
+                  alert(`Yükleme Hatası: ${error.message}`)
+                }
+                appearance={{
+                  button:
+                    "bg-blue-600 text-white px-6 py-2 rounded-xl font-medium hover:bg-blue-700 transition w-auto",
+                  allowedContent: "hidden",
+                }}
+                content={{
+                  button({ isUploading }) {
+                    if (isUploading) return "Yükleniyor...";
+                    return "Fotoğraf Seç";
+                  },
+                }}
               />
-              <button
-                type="button"
-                onClick={() => setImageUrl(null)}
-                className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg text-xs shadow-lg"
-              >
-                Değiştir
-              </button>
-            </div>
-          ) : (
-            <UploadButton
-              endpoint="imageUploader"
-              onClientUploadComplete={(res) => {
-                if (res && res[0]) setImageUrl(res[0].url);
-              }}
-              onUploadError={(error: Error) =>
-                alert(`Yükleme Hatası: ${error.message}`)
-              }
-              appearance={{
-                button:
-                  "bg-blue-600 text-white px-6 py-2 rounded-xl font-medium hover:bg-blue-700 transition w-auto",
-                allowedContent: "hidden",
-              }}
-              content={{
-                button({ isUploading }) {
-                  if (isUploading) return "Yükleniyor...";
-                  return "Fotoğraf Seç";
-                },
-              }}
-            />
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          /* MİSAFİRLERE FOTOĞRAF YÜKLETME, BİLGİ VER */
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm flex gap-3 items-center">
+            <span className="text-2xl">📸</span>
+            <p>
+              Güvenlik ve depolama gereği, fotoğrafınızı sisteme değil; birazdan
+              açılacak olan{" "}
+              <strong>mail ekranında doğrudan maile ekleyerek</strong>{" "}
+              göndermenizi rica ediyoruz.
+            </p>
+          </div>
+        )}
 
         <button
           type="submit"
-          disabled={isSubmitting || !imageUrl}
+          disabled={isSubmitting || (isAdmin && !imageUrl)}
           className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 transition shadow-xl shadow-blue-600/20"
         >
           {isSubmitting
