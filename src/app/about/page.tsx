@@ -68,12 +68,14 @@ export default function AboutPage() {
           </h2>
           <div className="flex flex-wrap justify-center gap-4">
             {[
-              "Next.js 14",
+              "Next.js 15",
               "TypeScript",
               "Tailwind CSS",
               "Prisma ORM",
               "Supabase",
               "Clerk Auth",
+              "UploadThing",
+              "React Simple Maps",
             ].map((tech) => (
               <span
                 key={tech}
