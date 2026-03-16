@@ -2,7 +2,7 @@
 
 Mapiva, Türkiye haritası üzerinde gezdiğiniz şehirleri interaktif olarak takip etmenizi, her şehre özel anılarınızı kaydetmenizi ve kendi dijital seyahat günlüğünüzü oluşturmanızı sağlayan modern bir full-stack web uygulamasıdır.
 
-🔗 **Canlı Demo:** [mapiva-app.vercel.app](https://mapiva-app.vercel.app) _(Kendi linkinle değiştir)_
+🔗 **Canlı Demo:** [mapiva-app.vercel.app](https://mapiva-v1qy.vercel.app/about)
 
 ![Mapiva Ekran Görüntüsü](public/cities/default-turkey.jpg)
 
@@ -34,7 +34,7 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları i
 **1. Repoyu Klonlayın:**
 
 ```bash
-git clone [https://github.com/kullaniciadiniz/mapiva.git](https://github.com/kullaniciadiniz/mapiva.git)
+git clone [https://github.com/aelmaser/mapiva]
 cd mapiva
 ```
 
